@@ -1,12 +1,94 @@
 from django.db import models
 
+# still need to add: possibly account information
 
-class Question(models.Model):
-    question_text = models.CharField(max_length=200)
-    pub_date = models.DateTimeField("date published")
+class Course(models.Model):
+    c_id = models.IntegerField(primary_key=True)
+    c_name = models.CharField(max_length=30)
+    #credits = models.IntegerField(default=0)
+    department = models.CharField(max_length=20)
 
+class Program(models.Model):
+    p_id = models.IntegerField(primary_key=True)
+    p_name = models.CharField(max_length=20)
+    department = models.CharField(max_length=20)
+    quota = models.IntegerField()
 
-class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice_text = models.CharField(max_length=200)
-    votes = models.IntegerField(default=0)
+class Prog_Req(models.Model)
+    p_id = models.ForeignKey(Program)
+    requirements = models.IntegerField()
+
+class Instructor(models.Model):
+    i_id = models.IntegerField(primary_key=True)
+    i_name = models.CharField(max_length=25)
+    warnings = models.IntegerField(default=0)
+    department = models.CharField(max_length=20)
+    i_email = models.EmailField()
+    
+class Student(models.Model): #use "enrollment" entity to determine number of classes taken
+    s_id = models.IntegerField(primary_key=True)
+    s_name = models.CharField(max_length=25)
+    total_gpa = models.FloatField()
+    semester_gpa = models.FloatField()
+    warnings = models.IntegerField(default=0)
+    program = models.IntegerField() # p_id of Program entity
+    s_email = models.EmailField()
+    
+class Student_Course_Hist(models.Model):#we save this to the DB once the student completes the course (not withdrawn)
+    pk =  models.CompositePrimaryKey("s_id", "courses_taken")# if they failed and retook it, we modify the existing object
+    s_id = models.ForeignKey(Student)
+    course_taken = models.IntegerField() #course_id
+    failures = models.IntegerField(default=0)
+    passed = models.IntegerField(default=0)
+    
+class ClassOffering(models.Model):
+    offer_id = models.IntegerField(primary_key=True)
+    course_id = models.IntegerField()
+    avg_rating = models.FloatField()
+    available_seats = models.IntegerField()
+    instructor = models.IntegerField()
+
+class Enrollment(models.Model):
+    pk = models.CompositePrimaryKey("student", "offering")
+    student = models.IntegerField() # student id
+    offering = models.IntegerField()
+    grade = models.FloatField(default=-1.0) #default -1 until grade is given
+    
+class Waitlist_Entry(models.Model):
+    pk = models.CompositePrimaryKey("student", "offering")
+    student = models.IntegerField() # student id
+    offering = models.IntegerField()
+    placement = models.IntegerField() # we auto-increment for each course offering, and let people in by ordering
+    
+class Review(models.Model):
+    subject = models.OneToOneField(Enrollment) #contains student and class
+    score = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    review_text = models.CharField(max_length=200)
+    taboo_words = models.IntegerField()
+    
+class AIquery(models.Model):
+    query_id = models.IntegerField(primary_key=True)
+    text = models.CharField(max_length=200)
+
+class Complaint(models.Model):
+    source = models.IntegerField()
+    target = models.IntegerField()
+    text = models.CharField(max_length=200)
+    
+class Student_Apply(models.Model):
+    app_id = models.IntegerField(primary_key=True)
+    app_status = models.CharField(max_length=8,default="pending")
+    gpa = models.FloatField()
+    program = models.OneToOneField(Program)
+	#we'll probably deal with file uploads after most things are done    
+    #transcript = models.FileField(upload_to="transcripts/")
+    
+class Instructor_Apply(models.Model):
+    app_id = models.IntegerField(primary_key=True)
+    app_status = models.CharField(max_length=8,default="pending")
+    #resume = models.FileField(upload_to="resumes/")
+    
+class Grad_Apply(models.Model):
+    app_id = models.IntegerField(primary_key=True)
+    app_status = models.CharField(max_length=8,default="pending")
+    gpa = models.FloatField()

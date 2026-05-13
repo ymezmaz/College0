@@ -1,6 +1,8 @@
 from django.db import models
 
-# still need to add: possibly account information
+# still need to add: 
+#	some amount of account information, depending on how much work django does with accounts and authentication
+#	some unifying User entity, which can hold students and instructors (helps with complaints between roles)
 
 class Course(models.Model):
     c_id = models.IntegerField(primary_key=True)
@@ -32,6 +34,8 @@ class Instructor(models.Model):
     department = models.CharField(max_length=20)
     i_email = models.EmailField()
     current_rating =  models.FloatField()
+    num_curr_courses = model.IntegerField()
+    #suspended = models.IntegerField() #equal to 1 or zero
     
 class Student(models.Model): #use "enrollment" entity to determine number of classes taken
     s_id = models.IntegerField(primary_key=True)
@@ -41,6 +45,8 @@ class Student(models.Model): #use "enrollment" entity to determine number of cla
     warnings = models.IntegerField(default=0)
     program = models.CharField(max_length=20) # p_name of Program entity
     s_email = models.EmailField()
+    num_curr_courses = model.IntegerField()
+    #suspended = models.IntegerField() #equal to 1 or zero
     
 class Student_Course_Hist(models.Model):#we save this to the DB once the student completes the course (not withdrawn)
     # if they failed and retook it, we modify the existing object
